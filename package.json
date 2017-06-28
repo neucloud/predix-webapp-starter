@@ -10,6 +10,7 @@
     "email": "predix.adoption@ge.com"
   },
   "scripts": {
+    "build": "npm install -g bower gulp-cli && bower install",
     "start": "node server/app.js",
     "test": "node_modules/mocha/bin/mocha test/server"
   },

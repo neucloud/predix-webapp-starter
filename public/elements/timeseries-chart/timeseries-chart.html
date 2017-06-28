@@ -320,7 +320,7 @@ Component will query for new data when tags or dates are changed.
 
       _buildWsUrl: function() {
         console.log('_buildWsUrl', this.wsUrl);
-        if (this.wsUrl && this.wsUrl.indexOf('wss://') === 0) {
+        if (this.wsUrl && this.wsUrl.indexOf('ws') === 0) {
           // looks like there's a real web socket server running in the cloud.
           return this.wsUrl + '/livestream';
         } else if ('http:' === window.location.protocol) {

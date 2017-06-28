@@ -6,7 +6,7 @@ var getUserInfo = function (accessToken, uaaURL, callback) {
 
 	var options = {
 		method: 'GET',
-		url: uaaURL + '/userinfo',
+		url: uaaURL + '/api/user/info',
 		headers: {
 			'Authorization': 'Bearer ' + accessToken
 		}

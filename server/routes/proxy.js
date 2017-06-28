@@ -20,8 +20,8 @@ if (corporateProxyServer) {
 	corporateProxyAgent = new HttpsProxyAgent(corporateProxyServer);
 }
 
-var clientId = predixConfig.getClientIdFromEncodedString(process.env.base64ClientCredential);
-var base64ClientCredential = process.env.base64ClientCredential;
+var clientId = predixConfig.getClientIdFromEncodedString(predixConfig.base64ClientCredential);
+var base64ClientCredential = predixConfig.base64ClientCredential;
 var uaaURL = (function() {
 	var vcapsServices = process.env.VCAP_SERVICES ? JSON.parse(process.env.VCAP_SERVICES) : {};
 	var uaaService = vcapsServices[process.env.uaa_service_label || 'predix-uaa'];

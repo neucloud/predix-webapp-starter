@@ -30,7 +30,7 @@ if(node_env === 'development') {
 } else {
 	// read VCAP_SERVICES
 	var vcapsServices = JSON.parse(process.env.VCAP_SERVICES);
-	var uaaService = vcapsServices[process.env.uaa_service_label];
+	var uaaService = vcapsServices[process.env.uaa_service_label || 'uaa'];
 	var assetService = vcapsServices['predix-asset'];
 	var timeseriesService = vcapsServices['predix-timeseries'];
 
@@ -48,11 +48,12 @@ if(node_env === 'development') {
 	}
 
 	// read VCAP_APPLICATION
-	var vcapsApplication = JSON.parse(process.env.VCAP_APPLICATION);
-	settings.appURL = 'https://' + vcapsApplication.uris[0];
+	// var vcapsApplication = JSON.parse(process.env.VCAP_APPLICATION);
+	settings.appURL = process.env.appURL;
 	settings.callbackURL = settings.appURL + '/callback';
-	settings.base64ClientCredential = process.env.base64ClientCredential;
-	settings.loginBase64ClientCredential = process.env.loginBase64ClientCredential;
+	var btoa = require('btoa');
+	settings.base64ClientCredential = btoa(process.env.base64ClientCredential);
+	settings.loginBase64ClientCredential = btoa(process.env.loginBase64ClientCredential);
 	settings.websocketServerURL = process.env.websocketServerURL;
 	settings.rmdDatasourceURL = process.env.rmdDatasourceURL;
 	settings.rmdDocsURL = process.env.rmdDocsURL;
@@ -96,7 +97,7 @@ settings.buildVcapObjectFromLocalConfig = function(config) {
 
 settings.isUaaConfigured = function() {
 	return settings.uaaURL &&
-    settings.uaaURL.indexOf('https') === 0 &&
+    // settings.uaaURL.indexOf('https') === 0 &&
     settings.base64ClientCredential && 
 	settings.base64ClientCredential.indexOf('client') < 0 &&
 	settings.loginBase64ClientCredential &&
@@ -105,14 +106,14 @@ settings.isUaaConfigured = function() {
 
 settings.isAssetConfigured = function() {
 	return settings.assetURL &&
-	settings.assetURL.indexOf('https') === 0 &&
+	// settings.assetURL.indexOf('https') === 0 &&
 	settings.assetZoneId &&
 	settings.assetZoneId.indexOf('{') !== 0;
 }
 
 settings.isTimeSeriesConfigured = function() {
 	return settings.timeseriesURL && 
-	settings.timeseriesURL.indexOf('https') === 0 &&
+	// settings.timeseriesURL.indexOf('https') === 0 &&
 	settings.timeseriesZoneId &&
 	settings.timeseriesZoneId.indexOf('{') !== 0;
 }

@@ -100,7 +100,7 @@ if (!config.isUaaConfigured()) {
 
   // route to fetch user info from UAA for use in the browser
   app.get('/userinfo', userInfo(config.uaaURL), function(req, res) {
-    res.send(req.user.details);
+    res.send({user_name: req.user.details.username});
   });
 
   // access real Predix services using this route.
@@ -177,7 +177,7 @@ app.get('/logout', function(req, res) {
 	req.session.destroy();
 	req.logout();
   passportConfig.reset(); //reset auth tokens
-  res.redirect(config.uaaURL + '/logout?redirect=' + config.appURL);
+  res.redirect(config.uaaURL + '/api/logout?redirect=' + config.appURL);
 });
 
 app.get('/favicon.ico', function (req, res) {

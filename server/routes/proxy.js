@@ -96,7 +96,7 @@ function buildDecorator(zoneId) {
 
 function isValidUrl(str) {
 	var urlObj = url.parse(str);
-	return urlObj.protocol === 'https:' && urlObj.host;
+	return /*urlObj.protocol === 'https:' &&*/ urlObj.host;
 }
 
 function getEndpointAndZone(key, credentials) {
@@ -111,8 +111,9 @@ function getEndpointAndZone(key, credentials) {
 		out.serviceEndpoint = isValidUrl(credentials.uri) ? credentials.uri : null;
 		out.zoneId = credentials.zone['http-header-value'];
 	} else if (key === 'predix-timeseries') {
-		var urlObj = url.parse(credentials.query.uri);
-		out.serviceEndpoint = urlObj.host ? urlObj.protocol + '//' + urlObj.host : null;
+		// var urlObj = url.parse(credentials.query.uri);
+		// out.serviceEndpoint = urlObj.host ? urlObj.protocol + '//' + urlObj.host : null;
+		out.serviceEndpoint = isValidUrl(credentials.query.uri) ? credentials.query.uri : null;
 		out.zoneId = credentials.query['zone-http-header-value'];
 	}
 	if (!out.serviceEndpoint) {
@@ -133,7 +134,7 @@ var setProxyRoute = function(key, credentials) {
 	var decorator = buildDecorator(routeOptions.zoneId);
 
 	router.use('/' + key, expressProxy(routeOptions.serviceEndpoint, {
-		https: true,
+		// https: true,
 		forwardPath: function (req) {
 			console.log('req.url: ' + req.url);
 			return req.url;

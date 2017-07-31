@@ -101,6 +101,25 @@ Component will query for new data when tags or dates are changed.
         
         this.$.tsAjaxEl.addEventListener('response', function(evt) {
           console.log('ts data', evt.detail.response);
+          evt.detail.response.tags = [];
+          var tags = [];
+          evt.detail.response.forEach(function(dp) {
+            key = dp.event.assetId + ':' + dp.event.nodeName;
+            if (!(key in tags)) {
+              tags[key] = {
+                  "name": key,
+                  "results": [
+                      {
+                          "values": []
+                      }
+                  ]
+              }
+            }
+            tags[key].results[0].values.push([moment(dp.timestamp).valueOf(), dp.event.avg_value]);
+          });
+          for (key in tags) {
+            evt.detail.response.tags.push(tags[key]);
+          }
           if (evt.detail.response.tags) {
             this._formatDataForChart(evt.detail.response.tags);
           }
@@ -200,38 +219,93 @@ Component will query for new data when tags or dates are changed.
       // [{key: "tag1", val: "Tag 1"}, {key: "tag2", val: "Tag 2", checked: true}]
       // {"from":"2016-01-01T00:00:00.000Z","to":"2016-07-01T11:00:00.000Z"}
       _fetchTimeseriesData: function(tags, range) {
-        var agg = [{
-          "type": "avg",
-          "sampling": {
-            "unit": "s",
-            "value": "30"
-          }
-        }];
         var query = {
-          "cache_time": 0,
-          start: moment(range.from).valueOf(),
-          end: moment(range.to).valueOf(),
-          tags: []
+            "queryType": "groupBy",
+            "dataSource": "rmd",
+            "granularity": {
+                "type": "period",
+                "timeZone": "UTC",
+                "period": "PT30S"
+            },
+            "dimensions": ["assetId", "nodeName"],
+            "filter": {
+                "type": "and",
+                "fields": [
+                    {
+                        "type": "or",
+                        "fields": []
+                    },
+                    {
+                        "type": "or",
+                        "fields": []
+                    }
+                ]
+            },
+            "aggregations": [
+                {
+                    "type": "count",
+                    "name": "count"
+                },
+                {
+                    "type": "doubleSum",
+                    "name": "sum",
+                    "fieldName": "value"
+                }
+            ],
+            "postAggregations": [
+                {
+                    "type": "arithmetic",
+                    "name": "avg_value",
+                    "fn": "/",
+                    "fields": [
+                        {
+                            "type": "fieldAccess",
+                            "name": "sum",
+                            "fieldName": "sum"
+                        },
+                        {
+                            "type": "fieldAccess",
+                            "name": "count",
+                            "fieldName": "count"
+                        }
+                    ]
+                }
+            ],
+            "intervals": range.from + "/" + range.to
         };
         tags.forEach(function(t) {
           if (t.checked) {
-            query.tags.push({
-              name: t.key,
-              aggregations: agg
+            var values = t.key.split(':');
+            query.filter.fields[0].fields.push({
+              "type": "selector",
+              "dimension": "assetId",
+              "value": values[0]
+            });
+            query.filter.fields[1].fields.push({
+              "type": "selector",
+              "dimension": "nodeName",
+              "value": values[1]
             });
           }
         });
-        if (query.tags.length === 0) {  // default, if none were selected yet
-          query.tags.push({
-            name: this._getFirstSelectedTag(tags),
-            aggregations: agg
+        if (query.filter.fields[0].fields.length === 0) {  // default, if none were selected yet
+          var values = this._getFirstSelectedTag(tags).split(':');
+          query.filter.fields[0].fields.push({
+            "type": "selector",
+            "dimension": "assetId",
+            "value": values[0]
+          });
+          query.filter.fields[1].fields.push({
+            "type": "selector",
+            "dimension": "nodeName",
+            "value": values[1]
           });
         }
         // {cache_time: 0, tags: [{name: "Compressor-2015:DischargePressure","aggregations":[{"type":"avg","sampling":{"unit":"s","value":"30"}}]}], start: 1489001400000, end:1489603772723}
         console.log('fetching timeseries data', tags, range);
         this.set('tsChartData', []);
         this.set('tsSeriesConfig', {});
-        this.$.tsAjaxEl.url = '/api/predix-timeseries/v1/datapoints';
+        this.$.tsAjaxEl.url = '/api/predix-timeseries/druid/v2/?pretty';
         this.$.tsAjaxEl.method = 'POST';
         this.$.tsAjaxEl.body = query;
         this.$.tsAjaxEl.generateRequest();

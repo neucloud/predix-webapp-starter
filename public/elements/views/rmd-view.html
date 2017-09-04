@@ -36,7 +36,7 @@
     <seed-table id="seedTable" rmd-data="{{rmdTableData}}"></seed-table>
     <iron-ajax id="datatableAjaxEl"></iron-ajax>
 
-    <timeseries-chart id="tsChart" ws-url="[[wsUrl]]"
+    <timeseries-chart id="tsChart" data-source="[[dataSource]]" ws-url="[[wsUrl]]"
       tags="{{displayTags}}" hidden$="{{!showTimeseriesChart}}"></timeseries-chart>
 
     <px-dropdown id="refreshFrequencyDropdown"
@@ -131,6 +131,7 @@
         var that = this;
         // initialize refresh interval
         this.refreshTimerInterval = 0;
+        this.dataSource = document.querySelector('#rmdPxView').elementData.dataSource;
         this.wsUrl = document.querySelector('#rmdPxView').elementData.wsUrl;
 
         this.$.kpiBarAjaxEl.addEventListener('response', function(evt) {

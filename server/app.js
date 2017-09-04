@@ -189,7 +189,7 @@ app.get('/config', function(req, res) {
   if (config.isAssetConfigured()) {
     title = "RMD Reference App";
   }
-  res.send({wsUrl: config.websocketServerURL, appHeader: title});
+  res.send({dataSource: config.dataSource, wsUrl: config.websocketServerURL, appHeader: title});
 });
 
 // Sample route middleware to ensure user is authenticated.

@@ -45,6 +45,7 @@ if(node_env === 'development') {
 	if(timeseriesService) {
 		settings.timeseriesZoneId = timeseriesService[0].credentials.query['zone-http-header-value'];
 		settings.timeseriesURL = timeseriesService[0].credentials.query.uri;
+		settings.dataSource = timeseriesService[0].credentials.query.datasource;
 	}
 
 	// read VCAP_APPLICATION

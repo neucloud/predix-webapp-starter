@@ -221,7 +221,7 @@ Component will query for new data when tags or dates are changed.
       _fetchTimeseriesData: function(tags, range) {
         var query = {
             "queryType": "groupBy",
-            "dataSource": "rmd",
+            "dataSource": this.dataSource,
             "granularity": {
                 "type": "period",
                 "timeZone": "UTC",
